@@ -23,8 +23,9 @@ namespace nafnateljari
             lnL_F = findLastName(false);
 
 
-
-
+            //Teljari tel = new Teljari();
+            //tel.ThousandSep(9876543210);
+            //Console.ReadKey();
             menu();
 
 
@@ -50,7 +51,7 @@ namespace nafnateljari
                     {
                         choice = Console.ReadKey().KeyChar;
                     } while (choice == '\n' | choice == '\r');
-                } while (choice < '1' | choice > '7' & choice != 'q');
+                } while (choice < '1' | choice > '8' & choice != 'q');
 
                 if (choice == 'q') break;
 
@@ -81,6 +82,9 @@ namespace nafnateljari
                     case '6':
                         ShitLoadOfNames(People);
                         break;
+                    case '7':
+                        FindForeignName(People);
+                        break;
                     default:
                         break;
                 }
@@ -103,6 +107,29 @@ namespace nafnateljari
             for (int i = 0; i < toPrint.Length + STANDARDWITDH; i++) { Console.Write("-"); }
             Console.Write("\n");
             Console.WriteLine();
+
+        }
+
+        static void FindForeignName(IEnumerable<PeopleNames> People)
+        {
+
+
+            string name = "Peter";
+            int newlowest = int.MaxValue;
+
+            var islmale = from p in People where p.afgreitt == true && p.tegund == NameTypes.DR && (p.nafn[0] == name[0]) select p.nafn;
+
+            foreach (var k in islmale)
+            {
+                int val = LevenshteinDistance.Compute(name, k);
+                if (val < newlowest)
+                {
+                    newlowest = val;
+                    Console.WriteLine("NEW LOW:" + newlowest + " name is: " + k);
+                }
+            }
+
+            Console.ReadKey();
 
         }
 
@@ -446,24 +473,106 @@ namespace nafnateljari
 
         }
 
-        public List<int> ThousandSep(int number)
+        public List<int> ThousandSep(long number)
         {
+
+            const int chSize = 3;
+
             string num = number.ToString();
 
-            int partnum = 0;
-            int length = num.Length;
-
-            while (!(length % 3 == 0))
+            while (!(num.Length % chSize == 0))
             {
                 num = "0" + num;
+                Console.WriteLine(num);
             }
 
-            Console.WriteLine(num);
+            IEnumerable<string> List = Enumerable.Range(0, num.Length / chSize)
+            .Select(i => num.Substring(i * chSize, chSize));
+
+            List<long> rell = new List<long>();
+
+            int reverseCounter = 0;
+            for (int x = List.Count() - 1 ; x >= 0; x--)
+            {
+                string stringstring = "";
+                stringstring = List.ElementAt(x) + ZeroAdder(reverseCounter);
+                reverseCounter++;
+                //Console.WriteLine(stringstring);
+                rell.Add(long.Parse(stringstring));
+            }
+
+            foreach ( var iee in rell)
+            {
+                Console.WriteLine(iee);
+            }
 
             return null;
 
         }
 
+        public string ZeroAdder (int number)
+        {
+            string returnstring = "";
+            for (int x = 0; x < number; x++)
+            {
+                returnstring += "000";
+            }
+
+            return returnstring;
+        }
+
+    }
+
+
+    static class LevenshteinDistance
+    {
+        /// <summary>
+        /// Compute the distance between two strings.
+        /// </summary>
+        public static int Compute(string s, string t)
+        {
+            int n = s.Length;
+            int m = t.Length;
+            int[,] d = new int[n + 1, m + 1];
+
+            // Step 1
+            if (n == 0)
+            {
+                return m;
+            }
+
+            if (m == 0)
+            {
+                return n;
+            }
+
+            // Step 2
+            for (int i = 0; i <= n; d[i, 0] = i++)
+            {
+            }
+
+            for (int j = 0; j <= m; d[0, j] = j++)
+            {
+            }
+
+            // Step 3
+            for (int i = 1; i <= n; i++)
+            {
+                //Step 4
+                for (int j = 1; j <= m; j++)
+                {
+                    // Step 5
+                    int cost = (t[j - 1] == s[i - 1]) ? 0 : 1;
+
+                    // Step 6
+                    d[i, j] = Math.Min(
+                        Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1),
+                        d[i - 1, j - 1] + cost);
+                }
+            }
+            // Step 7
+            return d[n, m];
+        }
     }
 
 }
