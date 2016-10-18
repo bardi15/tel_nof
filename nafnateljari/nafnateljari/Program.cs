@@ -112,14 +112,40 @@ namespace nafnateljari
 
         static void FindForeignName(IEnumerable<PeopleNames> People)
         {
+            bool gender;
+            Console.WriteLine("ENTER YOUR GENDER M/F:");
+            var key = Console.ReadKey().ToString().ToUpper();
+            if (key == "M")
+            {
+                gender = true;
+            }
+            else
+            {
+                gender = false;
+            }
 
 
-            string name = "Peter";
+            Console.WriteLine("ENTER YOUR NAME: ");
+
+            string name = Console.ReadLine();
             int newlowest = int.MaxValue;
+
+            var islfemale = from p in People where p.afgreitt == true && p.tegund == NameTypes.ST && (p.nafn[0] == name[0]) select p.nafn;
 
             var islmale = from p in People where p.afgreitt == true && p.tegund == NameTypes.DR && (p.nafn[0] == name[0]) select p.nafn;
 
-            foreach (var k in islmale)
+            IEnumerable<string> testbin;
+
+            if (gender)
+            {
+                testbin = islmale;
+            }
+            else
+            {
+                testbin = islfemale;
+            }
+
+            foreach (var k in testbin)
             {
                 int val = LevenshteinDistance.Compute(name, k);
                 if (val < newlowest)
